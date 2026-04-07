@@ -232,5 +232,5 @@ def get_age_stats(db: Session = Depends(get_db)):
     """Сегментация аудитории для таргетированной рекламы"""
     result = crud.get_collection_stats_by_age_group(db)
     if result is None:
-        raise HTTPException(status_code=404, detail="Таких фамилий нет")
+        raise HTTPException(status_code=404, detail="В Owners нет записей")
     return result
