@@ -64,8 +64,8 @@ A comprehensive REST API for managing museum exhibitions, artifacts, owners, and
 | `GET` | `/api/v1/analytics/most-profitable-place` | Most profitable venue |
 | `GET` | `/api/v1/analytics/most-popular-type` | Most popular artifact type |
 | `GET` | `/api/v1/analytics/wing-move-frequency/{id}` | Artifact movement frequency |
-| `GET` | `/api/v1/analytics/owners_whose_lastname_starts_I` | Owners' last name starts with I |
-| `GET` | `/api/v1//analytics/owners_with_specific_lastname_sorted` | Owners's last name starts with 'Ivano-' sorted by age |
+| `GET` | `/api/v1/analytics/owners_whose_lastname_starts_I` | Owners whose last name starts with 'I-' |
+| `GET` | `/api/v1//analytics/owners_with_specific_lastname_sorted` | Owners whose last name starts with 'Ivano-' sorted by age |
 
 ## 🗄️ Database Schema
 
