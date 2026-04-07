@@ -192,3 +192,53 @@ def get_owners_with_specific_lastname(db: Session):
         for r in result
     ]
 
+def get_owners_whose_lastname_starts_I(db: Session):
+    result = (
+        db.query (
+            models.Owner.id,
+            models.Owner.last_name,
+            models.Owner.first_name,
+            models.Owner.middle_name,
+            models.Owner.birth_date,            
+        )
+        .filter(models.Owner.last_name.like('И%'))
+        .all()
+    )
+    return [
+        {
+            "id": r[0],
+            "last_name": r[1],
+            "first_name": r[2],
+            "middle_name": r[3],
+            "birth_date": r[4].strftime('%d.%m.%Y')
+        }
+        for r in result
+    ]
+
+def get_owners_with_specific_lastname_sorted(db: Session):
+    age_expr = func.strftime('%Y', 'now') - func.strftime('%Y', models.Owner.birth_date).label('age')
+    - func.strftime('%m-%d', 'now') < func.strftime('%m-%d', models.Owner.birth_date)
+    result = (
+        db.query (
+            models.Owner.id,
+            models.Owner.last_name,
+            models.Owner.first_name,
+            models.Owner.middle_name,
+            models.Owner.birth_date,
+            age_expr            
+        )
+        .filter(models.Owner.last_name.like('Ивано%'))
+        .order_by(age_expr.asc(), models.Owner.birth_date.desc())
+        .all()
+    )
+    return [
+        {
+            "id": r[0],
+            "last_name": r[1],
+            "first_name": r[2],
+            "middle_name": r[3],
+            "birth_date": r[4].strftime('%d.%m.%Y'),
+            "age": r[5]
+        }
+        for r in result
+    ]
