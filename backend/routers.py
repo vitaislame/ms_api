@@ -226,3 +226,11 @@ def get_owners_with_specific_lastname_sorted(db: Session = Depends(get_db)):
     if result is None:
         raise HTTPException(status_code=404, detail="Таких фамилий нет")
     return create_response_with_sql(result)
+
+@router.get("/analytics/owners_by_age_group", tags=["📊 Аналитика"])
+def get_age_stats(db: Session = Depends(get_db)):
+    """Сегментация аудитории для таргетированной рекламы"""
+    result = crud.get_collection_stats_by_age_group(db)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Таких фамилий нет")
+    return result

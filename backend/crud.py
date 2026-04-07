@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, text
 import models
 import schemas
 
@@ -242,3 +242,53 @@ def get_owners_with_specific_lastname_sorted(db: Session):
         }
         for r in result
     ]
+
+def get_collection_stats_by_age_group(db: Session):
+    sql = text(""" 
+        SELECT
+            age_group as 'Возрастная категория',
+            COUNT(owner_id) AS 'Количество владельцев',
+            SUM(collection_size) AS 'Всего артефактов',
+            ROUND(AVG(collection_size),2) AS 'Средний размер коллекции'
+        FROM (
+            SELECT
+                o.id as owner_id,
+                (SELECT COUNT(*) FROM wings w WHERE w.owner_id = o.id) AS collection_size,
+                CASE
+                    WHEN (strftime('%Y', 'now') - strftime('%Y', birth_date)) -
+                        (strftime('%m-%d', 'now') < strftime('%m-%d', birth_date)) < 18
+                        THEN '0-17'
+                    WHEN (strftime('%Y', 'now') - strftime('%Y', birth_date)) -
+                        (strftime('%m-%d', 'now') < strftime('%m-%d', birth_date))
+                        BETWEEN 18 AND 25
+                        THEN '18-25'
+                    WHEN (strftime('%Y', 'now') - strftime('%Y', birth_date)) -
+                        (strftime('%m-%d', 'now') < strftime('%m-%d', birth_date))
+                        BETWEEN 26 AND 35
+                        THEN '26-35'
+                    WHEN (strftime('%Y', 'now') - strftime('%Y', birth_date)) -
+                        (strftime('%m-%d', 'now') < strftime('%m-%d', birth_date))
+                        BETWEEN 36 AND 45
+                        THEN '36-45'
+                    WHEN (strftime('%Y', 'now') - strftime('%Y', birth_date)) -
+                        (strftime('%m-%d', 'now') < strftime('%m-%d', birth_date))
+                        BETWEEN 46 AND 60
+                        THEN '46-60'
+                    ELSE '60+'
+                END AS age_group
+            FROM owners o
+            WHERE birth_date IS NOT NULL
+        ) AS owners_with_collection
+        GROUP BY age_group
+        ORDER BY
+        CASE age_group
+            WHEN '0-17' THEN 1
+            WHEN '18-25' THEN 2
+            WHEN '26-35' THEN 3
+            WHEN '36-45' THEN 4
+            WHEN '46-60' THEN 5
+            ELSE 6
+        END;
+    """)
+    result = db.execute(sql).mappings().all()
+    return result
